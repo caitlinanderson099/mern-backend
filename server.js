@@ -9,6 +9,9 @@ const app = express();
 // set a port - listen changes on the port
 const port = 4000; // this is so it will not conflict with the other localhost port for the frontend
 
+// allow cross origin
+app.use(cors());
+
 // this is importing the routes from workouts.js
 const workoutRoutes = require('./routes/workouts');
 
