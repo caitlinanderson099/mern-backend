@@ -62,7 +62,7 @@ const deleteWorkout = async (req, res) => {
     }
 
     // if it SUCCESSFULLY finds and deletes:
-    res.status(200).json(workout + "Successfully Deleted");
+    res.status(200).json(workout);
 
 }
 
