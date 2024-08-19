@@ -6,36 +6,64 @@ const mongoose = require('mongoose');
 
 // GET ALL Workouts
 const getWorkouts = async (req, res) => {
-    const workouts = await Workout.find({}).sort({createdAt: -1})
+   try {
+    const workouts = await Workout.find({}).populate({
+        path: 'comments',
+        model: 'Comment'
+    }).sort({createdAt: -1})
     res.status(200).json(workouts);
+
+   } catch (error) {
+    console.error(error);
+    res.status(500).json({error: 'Internal Server Error'});
+   }
 }
 
 // GET SINGLE Workout
 const getWorkout = async (req, res) => {
-    // step 1: get the id
     const {id} = req.params
-    // step 2: check if the id is a valid mongo id
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(404).json({error: "No Workout Found"}); 
+    // check if id is valid mongo id
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: 'No such workout'});
     }
 
-    // step 3: try to find the workout by its id
-    const workout = await Workout.findById(id);
-    // if there is no workout found, show an error
-    if(!workout) {
-        return res.status(404).json({error: "No Workout Found"});
-    }
-    // and then otherwise, return the workout
-    res.status(200).json(workout);
+    try {
+        // find the workout, populate the comments array with the comment document
+        const workout = await Workout.findById(id).populate({
+            path: 'comments',
+            model: 'Comments' // this is referencing the 'comments' model
+        })
+
+
+        // if no workout found show an error
+        if(!workout) {
+        return res.status(404).json({error: 'No such workout'});
+        }
+
+         // otherwise return the workout found
+        res.status(200).json(workout)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({error: 'Internal Server Error'})
+    } 
 }
 
 // CREATE Workout
 const createWorkout = async (req, res) => {
-    const {title, load, reps} = req.body
+    const {title, load, reps, user_id} = req.body
 
-    // add doc to database 
+    // Get The Uploaded Image File Name From The req.file Object
+    const imageFilename = req.file ? req.file.filename : null;
+
+    // Add Doc To Database 
     try {
-        const workout = await Workout.create({title, load, reps})
+        const workout = await Workout.create({
+            title, 
+            load, 
+            reps, 
+            user_id,
+            image: imageFilename
+        })
         res.status(200).json(workout)
     } catch (error) {
         res.status(400).json({error: error.message})

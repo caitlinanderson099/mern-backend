@@ -16,6 +16,10 @@ app.use(cors());
 
 // this is importing the routes from workouts.js
 const workoutRoutes = require('./routes/workouts');
+// this is importing the routes from user.js
+const userRoutes = require('./routes/user');
+// this is importing the routes from comments.js
+const commentRoutes = require('./routes/comments');
 
 // use json with express
 app.use(express.json());
@@ -29,7 +33,11 @@ app.use((req, res, next) => {
 
 // attach the routes to the app
 app.use('/api/workouts', workoutRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/comments', commentRoutes);
 
+// Server Static Files:
+app.use('/public/uploads', express.static('public/uploads'));
 
 
 
